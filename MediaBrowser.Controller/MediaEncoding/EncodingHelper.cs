@@ -130,7 +130,7 @@ namespace MediaBrowser.Controller.MediaEncoding
         private bool IsVppTonemappingSupported(EncodingJobInfo state, EncodingOptions options)
         {
             var videoStream = state.VideoStream;
-            var codec = videoStream.Codec.ToLowerInvariant();
+            var codec = videoStream.Codec;
             if (string.Equals(options.HardwareAccelerationType, "vaapi", StringComparison.OrdinalIgnoreCase))
             {
                 // Limited to HEVC for now since the filter doesn't accept master data from VP9.
@@ -958,7 +958,7 @@ namespace MediaBrowser.Controller.MediaEncoding
                 var videoStream = state.VideoStream;
                 var isColorDepth10 = IsColorDepth10(state);
                 var videoDecoder = GetHardwareAcceleratedVideoDecoder(state, encodingOptions) ?? string.Empty;
-                var isNvdecDecoder = videoDecoder.IndexOf("cuda", StringComparison.OrdinalIgnoreCase) != -1;
+                var isNvdecDecoder = videoDecoder.Contains("cuda", StringComparison.OrdinalIgnoreCase);
 
                 if (!isNvdecDecoder)
                 {
@@ -1952,8 +1952,8 @@ namespace MediaBrowser.Controller.MediaEncoding
             var isVaapiDecoder = videoDecoder.IndexOf("vaapi", StringComparison.OrdinalIgnoreCase) != -1;
             var isVaapiH264Encoder = outputVideoCodec.IndexOf("h264_vaapi", StringComparison.OrdinalIgnoreCase) != -1;
             var isVaapiHevcEncoder = outputVideoCodec.IndexOf("hevc_vaapi", StringComparison.OrdinalIgnoreCase) != -1;
-            var isNvdecDecoder = videoDecoder.IndexOf("cuda", StringComparison.OrdinalIgnoreCase) != -1;
-            var isNvencEncoder = outputVideoCodec.IndexOf("nvenc", StringComparison.OrdinalIgnoreCase) != -1;
+            var isNvdecDecoder = videoDecoder.Contains("cuda", StringComparison.OrdinalIgnoreCase);
+            var isNvencEncoder = outputVideoCodec.Contains("nvenc", StringComparison.OrdinalIgnoreCase);
             var isTonemappingSupported = IsTonemappingSupported(state, options);
             var isVppTonemappingSupported = IsVppTonemappingSupported(state, options);
             var isTonemappingSupportedOnVaapi = string.Equals(options.HardwareAccelerationType, "vaapi", StringComparison.OrdinalIgnoreCase) && isVaapiDecoder && (isVaapiH264Encoder || isVaapiHevcEncoder);
@@ -2144,9 +2144,9 @@ namespace MediaBrowser.Controller.MediaEncoding
                     || state.DeInterlace("h265", true)
                     || state.DeInterlace("hevc", true);
 
-                var isVaapiDecoder = videoDecoder.IndexOf("vaapi", StringComparison.OrdinalIgnoreCase) != -1;
-                var isVaapiH264Encoder = videoEncoder.IndexOf("h264_vaapi", StringComparison.OrdinalIgnoreCase) != -1;
-                var isVaapiHevcEncoder = videoEncoder.IndexOf("hevc_vaapi", StringComparison.OrdinalIgnoreCase) != -1;
+                var isVaapiDecoder = videoDecoder.Contains("vaapi", StringComparison.OrdinalIgnoreCase);
+                var isVaapiH264Encoder = videoEncoder.Contains("h264_vaapi", StringComparison.OrdinalIgnoreCase);
+                var isVaapiHevcEncoder = videoEncoder.Contains("hevc_vaapi", StringComparison.OrdinalIgnoreCase);
                 var isTonemappingSupported = IsTonemappingSupported(state, options);
                 var isVppTonemappingSupported = IsVppTonemappingSupported(state, options);
                 var isTonemappingSupportedOnVaapi = string.Equals(options.HardwareAccelerationType, "vaapi", StringComparison.OrdinalIgnoreCase) && isVaapiDecoder && (isVaapiH264Encoder || isVaapiHevcEncoder);
@@ -2192,7 +2192,7 @@ namespace MediaBrowser.Controller.MediaEncoding
                             (qsv_or_vaapi && isDeintEnabled) ? ":deinterlace=1" : string.Empty));
                 }
             }
-            else if ((videoDecoder ?? string.Empty).IndexOf("cuda", StringComparison.OrdinalIgnoreCase) != -1
+            else if ((videoDecoder ?? string.Empty).Contains("cuda", StringComparison.OrdinalIgnoreCase)
                 && width.HasValue
                 && height.HasValue)
             {
@@ -2446,10 +2446,10 @@ namespace MediaBrowser.Controller.MediaEncoding
             var isVaapiHevcEncoder = outputVideoCodec.IndexOf("hevc_vaapi", StringComparison.OrdinalIgnoreCase) != -1;
             var isQsvH264Encoder = outputVideoCodec.IndexOf("h264_qsv", StringComparison.OrdinalIgnoreCase) != -1;
             var isQsvHevcEncoder = outputVideoCodec.IndexOf("hevc_qsv", StringComparison.OrdinalIgnoreCase) != -1;
-            var isNvdecDecoder = videoDecoder.IndexOf("cuda", StringComparison.OrdinalIgnoreCase) != -1;
-            var isNvencEncoder = outputVideoCodec.IndexOf("nvenc", StringComparison.OrdinalIgnoreCase) != -1;
-            var isCuvidH264Decoder = videoDecoder.IndexOf("h264_cuvid", StringComparison.OrdinalIgnoreCase) != -1;
-            var isCuvidHevcDecoder = videoDecoder.IndexOf("hevc_cuvid", StringComparison.OrdinalIgnoreCase) != -1;
+            var isNvdecDecoder = videoDecoder.Contains("cuda", StringComparison.OrdinalIgnoreCase);
+            var isNvencEncoder = outputVideoCodec.Contains("nvenc", StringComparison.OrdinalIgnoreCase);
+            var isCuvidH264Decoder = videoDecoder.Contains("h264_cuvid", StringComparison.OrdinalIgnoreCase);
+            var isCuvidHevcDecoder = videoDecoder.Contains("hevc_cuvid", StringComparison.OrdinalIgnoreCase);
             var isLibX264Encoder = outputVideoCodec.IndexOf("libx264", StringComparison.OrdinalIgnoreCase) != -1;
             var isLibX265Encoder = outputVideoCodec.IndexOf("libx265", StringComparison.OrdinalIgnoreCase) != -1;
             var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
@@ -2711,7 +2711,7 @@ namespace MediaBrowser.Controller.MediaEncoding
             // Another case is when using Nvenc decoder.
             if (isNvdecDecoder && !isTonemappingSupported)
             {
-                var codec = videoStream.Codec.ToLowerInvariant();
+                var codec = videoStream.Codec;
 
                 // Assert 10-bit hardware decodable
                 if (isColorDepth10 && (string.Equals(codec, "hevc", StringComparison.OrdinalIgnoreCase)
