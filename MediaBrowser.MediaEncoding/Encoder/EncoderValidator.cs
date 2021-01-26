@@ -199,6 +199,8 @@ namespace MediaBrowser.MediaEncoding.Encoder
 
         public IEnumerable<string> GetHwaccels() => GetHwaccelTypes();
 
+        public bool CheckFilter(string filter, string option) => CheckFilterOption(filter, option);
+
         /// <summary>
         /// Using the output from "ffmpeg -version" work out the FFmpeg version.
         /// For pre-built binaries the first line should contain a string like "ffmpeg version x.y", which is easy
@@ -294,6 +296,38 @@ namespace MediaBrowser.MediaEncoding.Encoder
             _logger.LogInformation("Available hwaccel types: {Types}", found);
 
             return found;
+        }
+
+        private bool CheckFilterOption(string filter, string option)
+        {
+            if (string.IsNullOrEmpty(filter))
+            {
+                return false;
+            }
+
+            string output = null;
+            try
+            {
+                output = GetProcessOutput(_encoderPath, "-h filter=" + filter);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error detecting the given filter");
+            }
+
+            if (output.Contains("Filter " + filter, StringComparison.Ordinal))
+            {
+                if (string.IsNullOrEmpty(option))
+                {
+                    return true;
+                }
+
+                return output.Contains(option, StringComparison.Ordinal);
+            }
+
+            _logger.LogWarning("Filter: {Name} with option {Option} is not available", filter, option);
+
+            return false;
         }
 
         private IEnumerable<string> GetCodecs(Codec codec)
