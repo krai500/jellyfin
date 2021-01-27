@@ -125,8 +125,7 @@ namespace MediaBrowser.Controller.MediaEncoding
             return IsColorDepth10(state)
                    && _mediaEncoder.SupportsHwaccel("opencl")
                    && options.EnableTonemapping
-                   && !string.IsNullOrEmpty(videoStream.VideoRange)
-                   && videoStream.VideoRange.Contains("HDR", StringComparison.OrdinalIgnoreCase);
+                   && videoStream.VideoRange.Equals("HDR", StringComparison.OrdinalIgnoreCase);
         }
 
         private bool IsVppTonemappingSupported(EncodingJobInfo state, EncodingOptions options)
@@ -140,7 +139,6 @@ namespace MediaBrowser.Controller.MediaEncoding
                        && string.Equals(codec, "hevc", StringComparison.OrdinalIgnoreCase)
                        && _mediaEncoder.SupportsHwaccel("vaapi")
                        && options.EnableVppTonemapping
-                       && !string.IsNullOrEmpty(videoStream.ColorTransfer)
                        && videoStream.ColorTransfer.Equals("smpte2084", StringComparison.OrdinalIgnoreCase);
             }
 
