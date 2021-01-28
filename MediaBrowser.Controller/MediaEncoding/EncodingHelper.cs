@@ -125,7 +125,7 @@ namespace MediaBrowser.Controller.MediaEncoding
             return IsColorDepth10(state)
                    && _mediaEncoder.SupportsHwaccel("opencl")
                    && options.EnableTonemapping
-                   && videoStream.VideoRange.Equals("HDR", StringComparison.OrdinalIgnoreCase);
+                   && string.Equals(videoStream.VideoRange, "HDR", StringComparison.OrdinalIgnoreCase);
         }
 
         private bool IsVppTonemappingSupported(EncodingJobInfo state, EncodingOptions options)
@@ -139,7 +139,7 @@ namespace MediaBrowser.Controller.MediaEncoding
                        && string.Equals(codec, "hevc", StringComparison.OrdinalIgnoreCase)
                        && _mediaEncoder.SupportsHwaccel("vaapi")
                        && options.EnableVppTonemapping
-                       && videoStream.ColorTransfer.Equals("smpte2084", StringComparison.OrdinalIgnoreCase);
+                       && string.Equals(videoStream.ColorTransfer, "smpte2084", StringComparison.OrdinalIgnoreCase);
             }
 
             // Vpp tonemapping may come to QSV in the future.
@@ -2617,9 +2617,7 @@ namespace MediaBrowser.Controller.MediaEncoding
 
             // When the input may or may not be hardware VAAPI decodable.
             if ((isVaapiH264Encoder || isVaapiHevcEncoder)
-                && !isTonemappingSupported
-                && !isVppTonemappingSupported
-                && !isTonemappingSupportedOnVaapi)
+                && !(isTonemappingSupportedOnVaapi && (isTonemappingSupported || isVppTonemappingSupported)))
             {
                 filters.Add("format=nv12|vaapi");
                 filters.Add("hwupload");
@@ -2634,7 +2632,7 @@ namespace MediaBrowser.Controller.MediaEncoding
             // If we're hardware VAAPI decoding and software encoding, download frames from the decoder first.
             else if ((IsVaapiSupported(state) && isVaapiDecoder) && (isLibX264Encoder || isLibX265Encoder))
             {
-                var codec = videoStream.Codec.ToLowerInvariant();
+                var codec = videoStream.Codec;
 
                 // Assert 10-bit hardware VAAPI decodable
                 if (isColorDepth10 && (string.Equals(codec, "hevc", StringComparison.OrdinalIgnoreCase)
