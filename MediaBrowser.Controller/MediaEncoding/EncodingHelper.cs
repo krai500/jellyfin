@@ -482,8 +482,8 @@ namespace MediaBrowser.Controller.MediaEncoding
             var isVaapiEncoder = outputVideoCodec.IndexOf("vaapi", StringComparison.OrdinalIgnoreCase) != -1;
             var isQsvDecoder = videoDecoder.IndexOf("qsv", StringComparison.OrdinalIgnoreCase) != -1;
             var isQsvEncoder = outputVideoCodec.IndexOf("qsv", StringComparison.OrdinalIgnoreCase) != -1;
-            var isNvdecDecoder = videoDecoder.IndexOf("cuda", StringComparison.OrdinalIgnoreCase) != -1;
-            var isCuvidHevcDecoder = videoDecoder.IndexOf("hevc_cuvid", StringComparison.OrdinalIgnoreCase) != -1;
+            var isNvdecDecoder = videoDecoder.Contains("cuda", StringComparison.OrdinalIgnoreCase);
+            var isCuvidHevcDecoder = videoDecoder.Contains("hevc_cuvid", StringComparison.OrdinalIgnoreCase);
             var isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
             var isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
             var isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
@@ -560,16 +560,15 @@ namespace MediaBrowser.Controller.MediaEncoding
                 }
 
                 if (state.IsVideoRequest
-                    && string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase))
+                    && string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase)
+                    && isNvdecDecoder)
                 {
-                    if (isNvdecDecoder)
-                    {
-                        arg.Append("-hwaccel_output_format cuda ");
-                    }
+                    arg.Append("-hwaccel_output_format cuda ");
                 }
 
-                if (state.IsVideoRequest
-                    && (string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase) && (isNvdecDecoder || isCuvidHevcDecoder || isSwDecoder))
+                if ((state.IsVideoRequest
+                    && string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase)
+                    && (isNvdecDecoder || isCuvidHevcDecoder || isSwDecoder))
                         || (string.Equals(encodingOptions.HardwareAccelerationType, "amf", StringComparison.OrdinalIgnoreCase) && (isD3d11vaDecoder || isSwDecoder)))
                 {
                     if (isTonemappingSupported)
