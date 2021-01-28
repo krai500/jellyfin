@@ -566,10 +566,11 @@ namespace MediaBrowser.Controller.MediaEncoding
                     arg.Append("-hwaccel_output_format cuda ");
                 }
 
-                if ((state.IsVideoRequest
-                    && string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase)
-                    && (isNvdecDecoder || isCuvidHevcDecoder || isSwDecoder))
-                        || (string.Equals(encodingOptions.HardwareAccelerationType, "amf", StringComparison.OrdinalIgnoreCase) && (isD3d11vaDecoder || isSwDecoder)))
+                if (state.IsVideoRequest
+                    && ((string.Equals(encodingOptions.HardwareAccelerationType, "nvenc", StringComparison.OrdinalIgnoreCase)
+                         && (isNvdecDecoder || isCuvidHevcDecoder || isSwDecoder))
+                        || (string.Equals(encodingOptions.HardwareAccelerationType, "amf", StringComparison.OrdinalIgnoreCase) 
+                            && (isD3d11vaDecoder || isSwDecoder))))
                 {
                     if (isTonemappingSupported)
                     {
