@@ -1984,7 +1984,6 @@ namespace MediaBrowser.Controller.MediaEncoding
             var isTonemappingSupportedOnVaapi = string.Equals(options.HardwareAccelerationType, "vaapi", StringComparison.OrdinalIgnoreCase) && isVaapiDecoder && (isVaapiH264Encoder || isVaapiHevcEncoder);
             var isTonemappingSupportedOnQsv = string.Equals(options.HardwareAccelerationType, "qsv", StringComparison.OrdinalIgnoreCase) && isVaapiDecoder && (isQsvH264Encoder || isQsvHevcEncoder);
 
-
             // Tonemapping and burn-in graphical subtitles requires overlay_vaapi.
             // But it's still in ffmpeg mailing list. Disable it for now.
             if (isTonemappingSupportedOnVaapi && isTonemappingSupported && !isVppTonemappingSupported)
